@@ -15,8 +15,8 @@ pub fn exec(name: &str) -> CommandResult<()> {
 
     // Creating directories and initialising repository
     let _ = fs::create_dir(&project_path)?;
-    let _ = fs::create_dir(&project_path.join(name))?;
-    let mut main = fs::File::create(project_path.join(name).join("main.py"))?;
+    let _ = fs::create_dir(&project_path.join("src"))?;
+    let mut main = fs::File::create(project_path.join("src").join("main.py"))?;
     let _ = main.write_all(b"print('Hello, world!')")?;
     let _ = Repository::init(&project_path)?;
     let mut gitignore = fs::File::create(project_path.join(".gitignore"))?;
