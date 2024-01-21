@@ -12,7 +12,7 @@ fn cli() -> Command {
         .subcommand(
             Command::new("new")
                 .about("Create a new project")
-                .arg(arg!(<REMOTE> "Name of the project"))
+                .arg(arg!(<PROJECT_NAME> "Name of the project"))
                 .arg_required_else_help(true),
         )
         .subcommand(
@@ -20,17 +20,34 @@ fn cli() -> Command {
                 .about("Run the current project")
                 .args_conflicts_with_subcommands(true),
         )
+        .subcommand(
+            Command::new("add")
+                .about("Install modules to current project")
+                .arg(arg!(<PACKAGE_NAME> "Name of the module"))
+                .arg_required_else_help(true),
+        )
 }
 fn main() {
     let matches = cli().get_matches();
     match matches.subcommand() {
         Some(("new", sub_matches)) => {
-            commands::new::exec(sub_matches.get_one::<String>("REMOTE").expect("required"))
-                .unwrap();
+            commands::new::exec(
+                sub_matches
+                    .get_one::<String>("PROJECT_NAME")
+                    .expect("required"),
+            )
+            .unwrap();
         }
         Some(("run", _)) => {
             commands::run::exec().unwrap();
         }
+        Some(("add", sub_matches)) => commands::add::exec(
+            sub_matches
+                .get_one::<String>("PACKAGE_NAME")
+                .expect("required"),
+            false,
+        )
+        .unwrap(),
         _ => {}
     }
 }
