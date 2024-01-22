@@ -1,15 +1,18 @@
+use flate2::read::GzDecoder;
 use reqwest;
 use serde_json::Value;
-use std::{fs, io::Write, result};
+use std::{env, fs::File, io::Write, process::Command, result::Result};
+use tar::Archive;
+use toml::Table;
 
-type CommandResult<T> = result::Result<T, Box<dyn std::error::Error>>;
+type CommandResult<T> = Result<T, Box<dyn std::error::Error>>;
 
 fn install_wheel(wheel_url: Option<&str>) {
     let body = reqwest::blocking::get(wheel_url.unwrap())
         .unwrap()
         .bytes()
         .unwrap();
-    let mut out = fs::File::create("urllib3.whl").unwrap();
+    let mut out = File::create("urllib3.whl").unwrap();
 
     let mut pos = 0;
     while pos < body.len() {
@@ -18,18 +21,46 @@ fn install_wheel(wheel_url: Option<&str>) {
     }
 }
 
-fn install_tar(tar_url: Option<&str>) {
+//  TO-DO
+//
+// fn search_package(package_name: &str) {
+//     let url = format!("https://pypi.org/simple/{}", package_name);
+//     let resp = reqwest::blocking::get(url).unwrap();
+//     println!("{:?}", resp.text());
+// }
+
+fn install_tar(package_name: &str, tar_url: Option<&str>) {
+    /* Installs a .tar.gz package from its PyPI url.
+     */
     let body = reqwest::blocking::get(tar_url.unwrap())
         .unwrap()
         .bytes()
         .unwrap();
-    let mut out = fs::File::create("urllib3.tar.gz").unwrap();
+    let tar_path = format!("{}.tar.gz", package_name);
+    let mut out = File::create(&tar_path).unwrap();
 
     let mut pos = 0;
     while pos < body.len() {
         let bytes_written = out.write(&body[pos..]).unwrap();
         pos += bytes_written;
     }
+    let tar_gz = File::open(&tar_path).unwrap();
+    let tar = GzDecoder::new(tar_gz);
+    let mut archive = Archive::new(tar);
+    let _ = archive.unpack(".");
+
+    let orig_dir = env::current_dir().unwrap();
+
+    let _ = env::set_current_dir(package_name).unwrap();
+
+    let l = Command::new("../env/bin/python")
+        .arg("setup.py")
+        .arg("install")
+        .status()
+        .unwrap();
+
+    let _ = env::set_current_dir(orig_dir);
+    dbg!(l);
 }
 
 pub fn exec(package_name: &str, use_wheel: bool) -> CommandResult<()> {
@@ -45,7 +76,7 @@ pub fn exec(package_name: &str, use_wheel: bool) -> CommandResult<()> {
     if use_wheel {
         install_wheel(wheel_url);
     } else {
-        install_tar(tar_url);
+        install_tar(&format!("{}-{}", package_name, version), tar_url);
     }
 
     Ok(())
