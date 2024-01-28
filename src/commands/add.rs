@@ -1,3 +1,5 @@
+/// add
+/// Install modules to the current project
 use serde::{Deserialize, Serialize};
 use std::{fs, io::Write, process::Command, result};
 

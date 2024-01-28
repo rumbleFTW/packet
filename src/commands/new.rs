@@ -1,3 +1,5 @@
+/// new
+/// Create a new project
 use git2::Repository;
 use std::{
     fs,

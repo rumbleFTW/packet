@@ -1,3 +1,5 @@
+/// run
+/// Run the current project from the entrypoint
 use std::{process::Command, result};
 
 // Define a custom result type for command execution
