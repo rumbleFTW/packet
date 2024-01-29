@@ -1,7 +1,7 @@
 /// add
 /// Install modules to the current project
 use serde::{Deserialize, Serialize};
-use std::{fs, io::Write, process::Command, result};
+use std::{fs, io::Write, path::Path, process::Command, result};
 
 #[derive(Deserialize, Serialize)]
 struct Toml {
@@ -23,7 +23,8 @@ type CommandResult<T> = result::Result<T, Box<dyn std::error::Error>>;
 /// Returns `Ok(())` on success, or an error if the installation fails.
 pub fn exec(package_name: &str) -> CommandResult<()> {
     // Execute the pip command to install the specified package
-    let _ = Command::new("env/bin/pip")
+    let executable = Path::new(".").join("env").join("bin").join("pip");
+    let _ = Command::new(executable.as_os_str())
         .arg("install")
         .arg(package_name)
         .status();
