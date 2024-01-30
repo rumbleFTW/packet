@@ -22,6 +22,7 @@ type CommandResult<T> = result::Result<T, Box<dyn std::error::Error>>;
 /// # Returns
 ///
 /// Returns `Ok(())` on success, or an error if any of the operations fail.
+
 pub fn exec(name: &str) -> CommandResult<()> {
     // Set the base path to the current directory
     let base_path: &Path = Path::new(".");
