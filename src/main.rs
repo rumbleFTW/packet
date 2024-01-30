@@ -27,6 +27,10 @@ fn cli() -> Command {
                 .arg(arg!(<PACKAGE_NAME> "Name of the module"))
                 .arg_required_else_help(true),
         )
+        .subcommand(
+            Command::new("init")
+            .about("Initialize a new project in the current directory")
+        )
 }
 
 /// Main function to parse command-line arguments and execute corresponding actions.
@@ -57,6 +61,10 @@ fn main() {
                     .expect("required"),
             )
             .unwrap();
+        }
+        Some(("init", _)) => {
+            // Execute the "init" command
+            commands::init::exec().unwrap();
         }
         _ => {}
     }
