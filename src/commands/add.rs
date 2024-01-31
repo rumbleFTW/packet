@@ -32,14 +32,26 @@ pub fn exec(package_name: &str) -> CommandResult<()> {
         .arg("install")
         .arg(package_name)
         .status();
+    
+    // Parse the package name and version from the input argument
+    let (pkg_name, pkg_version) = match package_name.find("=="){
+        // If the package name contains a version, split it into name and version
+        Some(index) => {
+            let (pkg_name, pkg_version) = package_name.split_at(index);
+            (pkg_name.trim(), pkg_version.trim_start_matches("=="))
+        }
+        // If the package name does not contain a version, use "*" as the version
+        None => (package_name, "*"),
+    };
 
     // Read and deserialize the existing TOML data from "Packet.toml"
     let mut toml_data: Toml = toml::from_str(&fs::read_to_string("Packet.toml")?)?;
 
-    // Insert the new package and an empty string into the dependencies section
+    // Insert the new package and version into the dependencies section
+
     toml_data.dependencies.insert(
-        package_name.to_string(),
-        toml::Value::String("".to_string()),
+        pkg_name.to_string(),
+        toml::Value::String(format!("{}", pkg_version)),
     );
 
     // Create or overwrite "Packet.toml" with the updated TOML data
