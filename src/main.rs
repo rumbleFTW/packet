@@ -31,6 +31,10 @@ fn cli() -> Command {
             Command::new("init")
             .about("Initialize a new project in the current directory")
         )
+        .subcommand(
+            Command::new("check")
+            .about("Check if there is any error with the project")
+        )
 }
 
 /// Main function to parse command-line arguments and execute corresponding actions.
@@ -65,6 +69,10 @@ fn main() {
         Some(("init", _)) => {
             // Execute the "init" command
             commands::init::exec().unwrap();
+        }
+        Some(("check", _)) => {
+            // Execute the "check" command
+            commands::check::exec().unwrap();
         }
         _ => {}
     }
