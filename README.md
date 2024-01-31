@@ -31,6 +31,7 @@ cargo install --path .
 - `new`: Create a new project
 - `init`: Creates a new project in the existing directory
 - `run`: Run the current project
+- `check` : Checks if there is any error with the code
 - `help`: Print this message or the help of the given subcommand(s)
 
 
