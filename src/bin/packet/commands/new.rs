@@ -45,8 +45,7 @@ pub fn exec(name: &str) -> ExecResult<()> {
 
     // Creating packet files
     let toml_data = Toml::init(name)?;
-
-    let _ = Toml::write(&toml_data, PathBuf::from("Packet.toml"));
+    let _ = Toml::write(&toml_data, project_path.join("Packet.toml"));
     let _ = env_process.wait();
     Ok(())
 }

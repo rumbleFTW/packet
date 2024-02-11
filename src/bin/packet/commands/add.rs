@@ -13,7 +13,7 @@ use std::{env, path::PathBuf, process};
 /// # Returns
 ///
 /// Returns `Ok(())` on success, or an error if the installation fails.
-pub fn exec(package_name: &str) -> ExecResult<()> {
+pub fn exec(package: &str) -> ExecResult<()> {
     // Execute the pip command to install the specified package
     let executable = if env::consts::OS == "windows" {
         PathBuf::from(".").join("env").join("Scripts").join("pip")
@@ -22,8 +22,22 @@ pub fn exec(package_name: &str) -> ExecResult<()> {
     };
     let exit_status = process::Command::new(executable.as_os_str())
         .arg("install")
-        .arg(package_name)
+        .arg(package)
         .status()?;
+
+    // Parse the package name and version from the input argument
+    let (package_name, _) = match package.find("==") {
+        // If the package name contains a version, split it into name and version
+        Some(index) => {
+            let (package_name, package_version) = package.split_at(index);
+            (
+                package_name.trim(),
+                package_version.trim_start_matches("=="),
+            )
+        }
+        // If the package name does not contain a version, use "*" as the version
+        None => (package, "*"),
+    };
 
     // If installed successfully
     if exit_status.success() {
