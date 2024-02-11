@@ -30,7 +30,10 @@ cargo install --path .
 
 - `new`: Create a new project
 - `run`: Run the current project
-- `help`: Print this message or the help of the given subcommand(s)
+- `add`: Install modules to the current project
+- `init`: Initialize a new project in the current directory
+- `activate`: Activate a project environment in the current shell session
+- `help`: Print help or the help of the given subcommand(s)
 
 #### Options:
 

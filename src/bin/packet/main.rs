@@ -1,5 +1,8 @@
+mod commands;
 use clap::{arg, Command};
-use packet::commands;
+use std::result;
+
+type MainResult<T> = result::Result<T, Box<dyn std::error::Error>>;
 
 /// Define the command-line interface for the "packet" tool.
 fn cli() -> Command {
@@ -27,14 +30,15 @@ fn cli() -> Command {
                 .arg(arg!(<PACKAGE_NAME> "Name of the module"))
                 .arg_required_else_help(true),
         )
+        .subcommand(Command::new("init").about("Initialize a new project in the current directory"))
         .subcommand(
-            Command::new("init")
-            .about("Initialize a new project in the current directory")
+            Command::new("activate")
+                .about("Activate a project environment in the current shell session"),
         )
 }
 
 /// Main function to parse command-line arguments and execute corresponding actions.
-fn main() {
+fn main() -> MainResult<()> {
     // Get command-line matches based on the defined CLI structure
     let matches = cli().get_matches();
 
@@ -59,13 +63,17 @@ fn main() {
                 sub_matches
                     .get_one::<String>("PACKAGE_NAME")
                     .expect("required"),
-            )
-            .unwrap();
+            )?;
         }
         Some(("init", _)) => {
             // Execute the "init" command
-            commands::init::exec().unwrap();
+            commands::init::exec()?;
+        }
+        Some(("activate", _)) => {
+            // Execute the "activate" command
+            commands::activate::exec()?;
         }
         _ => {}
     }
+    Ok(())
 }
