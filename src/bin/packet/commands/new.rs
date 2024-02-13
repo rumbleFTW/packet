@@ -44,8 +44,8 @@ pub fn exec(name: &str) -> ExecResult<()> {
     let _ = gitignore.write_all(b"__pycache__/\nenv/");
 
     // Creating packet files
-    let toml_data = Toml::init(name)?;
-    let _ = Toml::write(&toml_data, project_path.join("Packet.toml"));
+    let mut toml_data = Toml::init(name)?;
+    let _ = toml_data.write(project_path.join("Packet.toml"));
     let _ = env_process.wait();
     Ok(())
 }

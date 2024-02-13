@@ -1,8 +1,9 @@
 /// add
 /// Install modules to the current project
 use super::types::ExecResult;
+use packet::resolver::package::Package;
 use packet::util::parsers::Toml;
-use std::{env, path::PathBuf, process};
+use std::{env, path::PathBuf};
 
 /// Execute the specified command to install a Python package using pip.
 ///
@@ -20,40 +21,15 @@ pub fn exec(package: &str) -> ExecResult<()> {
     } else {
         PathBuf::from(".").join("env").join("bin").join("pip")
     };
-    let exit_status = process::Command::new(executable.as_os_str())
-        .arg("install")
-        .arg(package)
-        .status()?;
 
-    // Parse the package name and version from the input argument
-    let (package_name, _) = match package.find("==") {
-        // If the package name contains a version, split it into name and version
-        Some(index) => {
-            let (package_name, package_version) = package.split_at(index);
-            (
-                package_name.trim(),
-                package_version.trim_start_matches("=="),
-            )
-        }
-        // If the package name does not contain a version, use "*" as the version
-        None => (package, "*"),
-    };
+    // Read Packet.toml file
+    let mut tomlfile = Toml::load(PathBuf::from("Packet.toml"))?;
 
-    // If installed successfully
-    if exit_status.success() {
-        // Read and deserialize the existing TOML data from "Packet.toml"
-        let mut toml_data = Toml::load(PathBuf::from("Packet.toml"))?;
+    let mut package_obj = Package::from_str(package);
 
-        // Insert the new package name into the dependencies if not already
-        if !toml_data
-            .dependencies
-            .contains(&toml::Value::String(package_name.to_string()))
-        {
-            toml_data
-                .dependencies
-                .push(toml::Value::String(package_name.to_string()));
-            let _ = Toml::write(&toml_data, PathBuf::from("Packet.toml"))?;
-        }
+    if package_obj.add(executable)? {
+        tomlfile.add_dependency(package_obj)?;
+        let _ = tomlfile.write(PathBuf::from("Packet.toml"));
     }
     Ok(())
 }
