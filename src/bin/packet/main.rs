@@ -35,6 +35,7 @@ fn cli() -> Command {
             Command::new("activate")
                 .about("Activate a project environment in the current shell session"),
         )
+        .subcommand(Command::new("pull").about("Install all dependencies from Packet.toml"))
 }
 
 /// Main function to parse command-line arguments and execute corresponding actions.
@@ -72,6 +73,10 @@ fn main() -> MainResult<()> {
         Some(("activate", _)) => {
             // Execute the "activate" command
             commands::activate::exec()?;
+        }
+        Some(("pull", _)) => {
+            // Execute the "pull" command
+            commands::pull::exec()?;
         }
         _ => {}
     }

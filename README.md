@@ -32,6 +32,7 @@ cargo install --path .
 - `run`: Run the current project
 - `add`: Install modules to the current project
 - `init`: Initialize a new project in the current directory
+- `pull`: Install all dependencies from Packet.toml
 - `activate`: Activate a project environment in the current shell session
 - `help`: Print help or the help of the given subcommand(s)
 

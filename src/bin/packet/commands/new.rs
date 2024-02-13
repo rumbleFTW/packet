@@ -2,12 +2,12 @@
 /// Create a new project
 use super::types::ExecResult;
 use git2::Repository;
+use packet::resolver::environment;
 use packet::util::parsers::Toml;
 use std::{
     fs,
     io::Write,
     path::{Path, PathBuf},
-    process::Command,
 };
 
 /// Execute the specified commands to set up a Rust project with additional files and configurations.
@@ -28,11 +28,7 @@ pub fn exec(name: &str) -> ExecResult<()> {
     let project_path: PathBuf = base_path.join(name);
 
     // Creating virtual environment (venv)
-    let mut env_process = Command::new("python")
-        .arg("-m")
-        .arg("venv")
-        .arg(project_path.join("env"))
-        .spawn()?;
+    environment::create(project_path.join("env"))?;
 
     // Creating directories and initializing repository
     let _ = fs::create_dir(&project_path)?;
@@ -46,6 +42,5 @@ pub fn exec(name: &str) -> ExecResult<()> {
     // Creating packet files
     let mut toml_data = Toml::init(name)?;
     let _ = toml_data.write(project_path.join("Packet.toml"));
-    let _ = env_process.wait();
     Ok(())
 }
